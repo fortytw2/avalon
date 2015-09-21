@@ -1,0 +1,345 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Just Linux and Go</title>
+    <meta charset='utf-8'>
+    <script src='static/slides.js'></script>
+  </head>
+
+  <body style='display: none'>
+
+    <section class='slides layout-widescreen'>
+      
+      <article>
+        <h1>Just Linux and Go</h1>
+        
+        <h3>22 September 2015</h3>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Ian Chiles
+  </p>
+  
+
+  
+  <p>
+    JustWatch
+  </p>
+  
+
+          </div>
+        
+          <div class="presenter">
+            
+          </div>
+        
+      </article>
+      
+  
+  
+      <article>
+      
+        <h3>What</h3>
+        
+  
+  <p>
+    Build a OS with Linux + a bunch of Go + QEMU/libguestfs
+  </p>
+  
+
+  <ul>
+  
+    <li>No GNU Software/Avoid GPL</li>
+  
+    <li>Not one line of C outside of Linux/bootloader</li>
+  
+    <li>Readable, extensible, clean userspace</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h2>Why</h2>
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>I don&#39;t like the GNU or the GPL</h3>
+        
+  
+  <p>
+    FOSS is at it&#39;s finest when it&#39;s not a business&#39;s core product
+  </p>
+  
+
+  <ul>
+  
+    <li>Google (<code>kubernetes</code>, <code>android</code>, <code>protobuf</code>, <code>chromium</code>)</li>
+  
+    <li>Facebook (<code>react</code>, <code>hack</code>, <code>thrift</code>)</li>
+  
+    <li>Microsoft (<code>rosyln/dotNET</code>, <code>typescript</code>)</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>Cruft/Bloat</h3>
+        
+  <ul>
+  
+    <li>GNU coreutils <code>cat</code> is... 768 lines of code</li>
+  
+    <li>federated development of a &#34;standard&#34; linux OS</li>
+  
+    <li>dynamic linking</li>
+  
+    <li>systemD</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h2>Serious case of &#39;not-invented-here&#39; syndrome</h2>
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h2>Turns out it&#39;s easy</h2>
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>Build Linux</h3>
+        <script type="text/javascript" src="https://asciinema.org/a/4adm32wk0t626mijvkexuvtmk.js" id="asciicast-4adm32wk0t626mijvkexuvtmk" async></script>
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>Booting</h3>
+        <a href="https://asciinema.org/a/12i116g0kltwwxn2c8jwmsq81?autoplay=1"><img src="https://asciinema.org/a/12i116g0kltwwxn2c8jwmsq81.png" width="700"/></a>
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>Looks like we need a filesystem</h3>
+        <a href="https://asciinema.org/a/bfk43pq02kdq0hq4das6q70f3?autoplay=1"><img src="https://asciinema.org/a/bfk43pq02kdq0hq4das6q70f3.png" width="700"/></a>
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>Anything can be `init`</h3>
+        
+  
+  <p>
+    Simple, effective, systemD better watch out.
+  </p>
+  
+
+  <div class="code" contenteditable="true" spellcheck="false">
+
+
+<pre><span num="1">package main</span>
+<span num="2"></span>
+<span num="3">import (</span>
+<span num="4">    &#34;log&#34;</span>
+<span num="5">    &#34;time&#34;</span>
+<span num="6">)</span>
+<span num="7"></span>
+<span num="8">func main() {</span>
+<span num="9">    log.Println(&#34;HELLO WORLD&#34;)</span>
+<span num="10"></span>
+<span num="11">    for {</span>
+<span num="12">        log.Println(&#34;I&#39;m PID(1) and I&#39;m still running!&#34;)</span>
+<span num="13">        time.Sleep(5 * time.Second)</span>
+<span num="14">    }</span>
+<span num="15">}</span>
+</pre>
+
+
+</div>
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>Rebuild FS and boot</h3>
+        
+  
+  <p>
+    Put the <code>init</code> binary from `CGO_ENABLED=0 go build` in a folder somewhere
+  </p>
+  
+<a href="https://asciinema.org/a/7qzsd8gr448hmeu7wzcq1ywky?autoplay=1"><img src="https://asciinema.org/a/7qzsd8gr448hmeu7wzcq1ywky.png" width="700" /></a>
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>How can any OS vendor hope to compete</h3>
+        
+  <ul>
+  
+    <li>8 shell commands</li>
+  
+    <li>16 lines of code</li>
+  
+    <li>sub 3s boot times on a HDD</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>Maybe a real `init` will do</h3>
+        
+  <div class="code" contenteditable="true" spellcheck="false">
+
+
+<pre><span num="1">func main() {</span>
+<span num="2">    log.Println(&#34;excalibur: initializing system&#34;)</span>
+<span num="3">    // our shell is called `gsh`</span>
+<span num="4">    program := &#34;/gsh&#34;</span>
+<span num="5"></span>
+<span num="6">    c := exec.Command(program)</span>
+<span num="7">    c.Stdout, c.Stderr, c.Stdin = os.Stdout, os.Stderr, os.Stdin</span>
+<span num="8"></span>
+<span num="9">    err := c.Start()</span>
+<span num="10">    if err != nil {</span>
+<span num="11">        log.Println(&#34;excalibur: could not boot system!&#34;)</span>
+<span num="12">    }</span>
+<span num="13"></span>
+<span num="14">    for {</span>
+<span num="15">        log.Println(&#34;excalibur: just stayin&#39; alive&#34;)</span>
+<span num="16">        time.Sleep(1 * time.Minute)</span>
+<span num="17">    }</span>
+<span num="18">}</span>
+</pre>
+
+
+</div>
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>But we need a shell</h3>
+        
+  <div class="code" contenteditable="true" spellcheck="false">
+
+
+<pre><span num="1">func main() {</span>
+<span num="2">    log.Println(&#34;welcome to the best shell ever&#34;)</span>
+<span num="3">    for {</span>
+<span num="4">        reader := bufio.NewReader(os.Stdin)</span>
+<span num="5">        fmt.Print(&#34;sh: &#34;)</span>
+<span num="6">        text, _ := reader.ReadString(&#39;\n&#39;)</span>
+<span num="7">        cmd := strings.Split(strings.TrimRight(text, &#34;\n&#34;), &#34; &#34;)</span>
+<span num="8">        c := exec.Command(cmd[0], cmd[1:]...)</span>
+<span num="9">        c.Stdout, c.Stderr, c.Stdin = os.Stdout, os.Stderr, os.Stdin</span>
+<span num="10">        err := c.Start()</span>
+<span num="11">        if err != nil {</span>
+<span num="12">            fmt.Println(&#34;error:&#34;, err)</span>
+<span num="13">        }</span>
+<span num="14">    }</span>
+<span num="15">}</span>
+</pre>
+
+
+</div>
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>In Business</h3>
+        <a href="https://asciinema.org/a/e3418vnvcb4poex69utc4giuc?autoplay=1"><img src="https://asciinema.org/a/e3418vnvcb4poex69utc4giuc.png" width="700"/></a>
+
+      
+      </article>
+  
+  
+
+      <article>
+        <h3>Thank you</h1>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Ian Chiles
+  </p>
+  
+
+  
+  <p>
+    JustWatch
+  </p>
+  
+<p class="link"><a href="mailto:fortytw2@gmail.com" target="_blank">fortytw2@gmail.com</a></p>
+          </div>
+        
+          <div class="presenter">
+            <p class="link"><a href="http://twitter.com/fortytw2" target="_blank">@fortytw2</a></p>
+          </div>
+        
+      </article>
+
+  </body>
+  
+</html>
