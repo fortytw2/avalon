@@ -78,3 +78,16 @@ Put the `init` binary from `CGO_ENABLED=0 go build` in a folder somewhere
 * In Business
 
 .html bootinitsh.html
+
+* Utilities
+
+- Clarent
+- Busybox
+- ubase / sbase
+
+* Possibilties
+
+- Anything can work
+- No limits, not bound to any pre-written "standards"
+- NodeJS? Works
+- Distributed device manager and `init` why not?
